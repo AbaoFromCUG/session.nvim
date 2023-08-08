@@ -94,3 +94,21 @@ session.register_hook("post_restore", "my_post_restore", function()
 end)
 
 ```
+
+
+## integrate
+
+**[telescope.nvim](https://github.com/nvim-telescope/telescope.nvim/)**
+
+`session.nvim` support integrate with `telescop.nvim`, use `:Telescope session` to list session 
+
+```lua
+local telescope = require("telescope")
+telescope.load_extension("session")
+```
+
+
+
+# Acknowledges
+
+* [auto-sesion](https://github.com/rmagatti/auto-session): a powerful and rich with features session manager
