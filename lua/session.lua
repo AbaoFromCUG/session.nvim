@@ -20,10 +20,23 @@ M.config = {
     },
 }
 
+---@class session.InternalState
+---@field started_with_stdin boolean
+
+---@type session.InternalState
+M._state = {
+    started_with_stdin = false,
+}
+
 ---setup session.nvim
 ---@param config? session.Configuration
 function M.setup(config)
     M.config = vim.tbl_deep_extend("force", M.config, config or {})
+end
+
+---comment
+function M.enable()
+    return M.config.enabled and not M._state.started_with_stdin and vim.fn.argc() == 0
 end
 
 ---@alias session.Chance 'pre_save'|'extra_save'|'post_save'|'pre_restore'|'post_restore'
