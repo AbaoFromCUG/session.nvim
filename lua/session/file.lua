@@ -1,3 +1,5 @@
+local Path = require("plenary.path")
+
 local M = {}
 
 ---escape file path
@@ -23,6 +25,7 @@ end
 ---get session dir, default `stdpath('state)/session`
 ---@return string path
 function M.get_session_dir()
+    local path = Path:new(vim.fn.stdpath("state"), "session")
     local path = vim.fn.stdpath("state") .. "/" .. "session"
     if vim.fn.isdirectory(path) == 0 then
         vim.fn.mkdir(path)

@@ -39,7 +39,7 @@ require("sesion").setup(config)
 ```
 
 
-# Useages
+# Usage
 
 ## Hooks
 

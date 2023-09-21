@@ -44,14 +44,10 @@ end
 
 local opts = {}
 return require("telescope").register_extension({
-    setup = function(ext_config, config)
-        for key, value in pairs(config) do
-            opts[key] = value
-        end
-    end,
+    setup = function(ext_config, config) end,
     exports = {
         session = function()
-            session.list_session(select)
+            -- session.list_session(select)
         end,
     },
 })

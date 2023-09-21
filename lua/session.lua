@@ -1,5 +1,4 @@
 local file = require("session.file")
-
 ---@class session
 ---@field config session.Configuration
 local M = {}
@@ -35,7 +34,7 @@ function M.setup(config)
 end
 
 ---comment
-function M.enable()
+function M._enabled()
     return M.config.enabled and not M._state.started_with_stdin and vim.fn.argc() == 0
 end
 
@@ -83,7 +82,9 @@ function M.restore_session(session_file)
     M.execute_hooks("post_restore")
 end
 
-function M.save_session(...)
+function M.delete_session(dir) end
+
+function M.save_session()
     local session_file, xsesssion_file = file.get_session_file()
     M.execute_hooks("pre_save")
     vim.cmd("mksession! " .. session_file)
@@ -92,28 +93,17 @@ function M.save_session(...)
     M.execute_hooks("post_save")
 end
 
----select and open session interactivily
----@param handle? fun(items:any[], opts:{prompt:string, format_item:function}, on_choice:fun(item))
-function M.list_session(handle)
-    handle = handle or vim.ui.select
-    local file_list = vim.fn.glob(file.get_session_dir() .. "/*_.vim", true, true)
-    local items = {}
-    for _, value in ipairs(file_list) do
-        local filename = vim.fs.basename(value)
+function M.get_session_list()
+    local session_files = vim.fn.glob(file.get_session_dir() .. "/*_.vim", true, true)
+    local session_list = {}
+
+    for _, session_file in ipairs(session_files) do
+        local filename = vim.fs.basename(session_file)
         local name = filename:match("([%w_]+)_.vim")
-        table.insert(items, {
-            path = value,
-            name = file.unescape_path(name),
-        })
+        local raw_path = file.unescape_path(name)
+        table.insert(session_list, raw_path)
     end
-    handle(items, {
-        prompt = "Session list",
-        format_item = function(item)
-            return item.name
-        end,
-    }, function(item)
-        M.restore_session(item)
-    end)
+    return session_list
 end
 
 return M
