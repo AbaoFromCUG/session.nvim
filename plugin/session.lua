@@ -29,29 +29,39 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
     end,
 })
 
-local function parse(args)
-    local parts = vim.split(vim.trim(args), "%s+")
-    table.remove(parts, 1)
-    if args:sub(-1) == " " then
-        parts[#parts + 1] = ""
-    end
-    return table.remove(parts, 1) or "", parts
-end
-
 vim.api.nvim_create_user_command("Session", function(opts)
-    if #opts.fargs < 1 then
-        command()
-    else
-        command[table.remove(opts.fargs, 1)].run(opts.fargs)
+    local function run(cmds)
+        if #cmds < 1 then
+            vim.ui.select({ "open", "delete" }, { prompt = "Session" }, function(item)
+                if item then
+                    table.insert(cmds, item)
+                    run(cmds)
+                end
+            end)
+        elseif #cmds == 1 then
+            vim.ui.select(session.get_session_list(), { prompt = "Session " .. cmds[1] }, function(item)
+                if item then
+                    table.insert(cmds, item)
+                    run(cmds)
+                end
+            end)
+        elseif #cmds == 2 then
+            if not command[cmds[1]] then
+                vim.notify(string.format("Unknown session action [%s]", cmds[1]), vim.log.levels.ERROR, { prompt = "Session" })
+                return
+            end
+            command[cmds[1]](cmds[2])
+        end
     end
+    run(opts.fargs)
 end, {
     desc = "Session manager",
     nargs = "*",
     complete = function(_, line, _)
-        local prefix, args = parse(line)
-        if command[prefix] ~= nil then
-            return command[prefix].complete()
+        local parts = vim.split(vim.trim(line), "%s+")
+        if line:match("Session open ") or line:match("Session delete ") then
+            return session.get_session_list()
         end
-        return vim.tbl_keys(command)
+        return { "open", "delete" }
     end,
 })

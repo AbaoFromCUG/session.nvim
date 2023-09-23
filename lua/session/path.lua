@@ -1,5 +1,3 @@
-local Path = require("plenary.path")
-
 local M = {}
 
 ---escape file path
@@ -22,12 +20,20 @@ function M.unescape_path(name)
     return unescaped
 end
 
+function M.join(...)
+    local args = { ... }
+    if vim.loop.os_uname().sysname == "Windows_NT" then
+        return vim.fn.join(args, "\\")
+    else
+        return vim.fn.join(args, "/")
+    end
+end
+
 ---get session dir, default `stdpath('state)/session`
 ---@return string path
-function M.get_session_dir()
-    local path = Path:new(vim.fn.stdpath("state"), "session")
-    local path = vim.fn.stdpath("state") .. "/" .. "session"
-    if vim.fn.isdirectory(path) == 0 then
+function M.get_session_root()
+    local path = M.join(vim.fn.stdpath("state"), "session")
+    if not vim.fn.isdirectory(path) then
         vim.fn.mkdir(path)
     end
     return path
@@ -37,10 +43,11 @@ end
 ---@param dir_path? string
 ---@return string, string
 function M.get_session_file(dir_path)
-    dir_path = dir_path or vim.fn.getcwd(0) --[[@as string]]
+    dir_path = dir_path or vim.fn.getcwd() --[[@as string]]
     local name = M.escape_path(dir_path)
-    local path = string.format("%s/%s_.vim", M.get_session_dir(), name)
-    local xpath = string.format("%s/%s_x.vim", M.get_session_dir(), name)
+    local session_root = M.get_session_root()
+    local path = M.join(session_root, string.format("%s_.vim", name))
+    local xpath = M.join(session_root, string.format("%s_x.vim", name))
     return path, xpath
 end
 

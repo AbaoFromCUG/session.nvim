@@ -1,5 +1,4 @@
 local session = require("session")
-local file = require("session.file")
 local pickers = require("telescope.pickers")
 local actions = require("telescope.actions")
 local finders = require("telescope.finders")
