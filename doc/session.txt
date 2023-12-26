@@ -1,4 +1,4 @@
-*session.txt*          For NVIM v0.8.0          Last change: 2023 September 23
+*session.txt*           For NVIM v0.8.0          Last change: 2023 December 26
 
 ==============================================================================
 Table of Contents                                  *session-table-of-contents*
@@ -45,6 +45,7 @@ Default configuration
     ---@type session.Configuration
     local config = {
         enabled = true,
+        silent_restore = true,  -- silent restore session, maybe cause confusion if you log in autocmd(e.g. BufWinEnter)
         hooks = {
             pre_save = {},
             extra_save = {},
