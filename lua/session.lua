@@ -6,11 +6,13 @@ local M = {}
 
 ---@class session.Configuration
 ---@field enabled? boolean
+---@field silent_restore? boolean # silent restore, may cause confusion
 ---@field hooks? table<session.Chance, table<string, function>>
 
 ---@type session.Configuration
 M.config = {
     enabled = true,
+    silent_restore = true,
     hooks = {
         pre_save = {},
         extra_save = {},
@@ -92,7 +94,11 @@ function M.restore_session(dir)
         return
     end
     M.execute_hooks("pre_restore", vim.fn.getcwd(), dir)
-    vim.cmd("silent source " .. session_file)
+    if M.config.silent_restore then
+        vim.cmd("silent source " .. session_file)
+    else
+        vim.cmd("source " .. session_file)
+    end
     M.execute_hooks("post_restore", dir)
 end
 

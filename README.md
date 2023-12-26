@@ -25,6 +25,7 @@ Default configuration
 ---@type session.Configuration
 local config = {
     enabled = true,
+    silent_restore = true,  -- silent restore session, maybe cause confusion if you log in autocmd(e.g. BufWinEnter)
     hooks = {
         pre_save = {},
         extra_save = {},
