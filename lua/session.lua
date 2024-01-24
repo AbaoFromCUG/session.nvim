@@ -125,9 +125,15 @@ function M.save_session()
     M.execute_hooks("post_save")
 end
 
+---@class session.Session
+---@field work_directory string
+---@field session_file string
+---@field name? string
+
+---get session list
+---@return session.Session[]
 function M.get_session_list()
-    -- local session_files = vim.fn.glob(path.get_session_root() .. "*_.vim", true, true)
-    local session_files = vim.fs.find(function(name, p)
+    local session_files = vim.fs.find(function(name)
         return name:match("[%w_]+_.vim")
     end, { path = path.get_session_root(), limit = math.huge, type = "file" })
     local session_list = {}
@@ -136,7 +142,27 @@ function M.get_session_list()
         local filename = vim.fs.basename(session_file)
         local name = filename:match("([%w_]+)_.vim")
         local raw_path = path.unescape_path(name)
-        table.insert(session_list, raw_path)
+        table.insert(session_list, {
+            work_directory = raw_path,
+            session_file = session_file,
+            name = vim.fs.basename(raw_path),
+        })
+    end
+    local find_one = true
+    while find_one do
+        find_one = false
+        for _, sess in ipairs(session_list) do
+            local same_list = vim.tbl_filter(function(other)
+                return other.name == sess.name
+            end, session_list)
+            if #same_list > 1 then
+                find_one = true
+                vim.tbl_map(function(one)
+                    local parent_dir = one.work_directory:sub(1, #one.work_directory - #one.name - 1)
+                    one.name = path.join(vim.fs.basename(parent_dir), one.name)
+                end, same_list)
+            end
+        end
     end
     return session_list
 end

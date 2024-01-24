@@ -33,7 +33,7 @@ end
 ---@return string path
 function M.get_session_root()
     local path = M.join(vim.fn.stdpath("state"), "session")
-    if not vim.fn.isdirectory(path) then
+    if vim.fn.isdirectory(path) == 0 then
         vim.fn.mkdir(path)
     end
     return path

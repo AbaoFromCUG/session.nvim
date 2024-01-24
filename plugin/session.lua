@@ -1,5 +1,5 @@
 local session = require("session")
-local command = require("session.command")
+local cmds = require("session.command")
 
 local group = vim.api.nvim_create_augroup("Session", {})
 vim.api.nvim_create_autocmd("StdinReadPre", {
@@ -30,38 +30,32 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
 })
 
 vim.api.nvim_create_user_command("Session", function(opts)
-    local function run(cmds)
-        if #cmds < 1 then
-            vim.ui.select({ "open", "delete" }, { prompt = "Session" }, function(item)
-                if item then
-                    table.insert(cmds, item)
-                    run(cmds)
-                end
-            end)
-        elseif #cmds == 1 then
-            vim.ui.select(session.get_session_list(), { prompt = "Session " .. cmds[1] }, function(item)
-                if item then
-                    table.insert(cmds, item)
-                    run(cmds)
-                end
-            end)
-        elseif #cmds == 2 then
-            if not command[cmds[1]] then
-                vim.notify(string.format("Unknown session action [%s]", cmds[1]), vim.log.levels.ERROR, { prompt = "Session" })
-                return
-            end
-            command[cmds[1]](cmds[2])
-        end
+    local cmd = cmds[opts.fargs[1]]
+    if cmd ~= nil then
+        table.remove(opts.fargs, 1)
+        cmd.execute(unpack(opts.fargs))
     end
-    run(opts.fargs)
 end, {
-    desc = "Session manager",
+    desc = "Session/Project Manager",
     nargs = "*",
     complete = function(_, line, _)
-        local parts = vim.split(vim.trim(line), "%s+")
-        if line:match("Session open ") or line:match("Session delete ") then
-            return session.get_session_list()
+        local l = vim.split(line, "%s+")
+        local n = #l - 2
+        if n == 0 then
+            return vim.tbl_filter(function(val)
+                return vim.startswith(val, l[2])
+            end, vim.tbl_keys(cmds))
+        elseif n == 1 and cmds[l[2]] ~= nil then
+            local cmd = cmds[l[2]]
+            local condition = {}
+            if type(cmd["complete"]) == "function" then
+                condition = cmd.complete()
+            elseif type(cmd["complete"]) == "table" then
+                condition = cmd.complete --[[@as table]]
+            end
+            return vim.tbl_filter(function(val)
+                return vim.startswith(val, l[3])
+            end, condition)
         end
-        return { "open", "delete" }
     end,
 })
