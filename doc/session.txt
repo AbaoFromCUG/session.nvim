@@ -1,4 +1,4 @@
-*session.txt*           For NVIM v0.8.0          Last change: 2023 December 26
+*session.txt*           For NVIM v0.8.0           Last change: 2024 January 24
 
 ==============================================================================
 Table of Contents                                  *session-table-of-contents*
