@@ -47,6 +47,8 @@ function M.setup(config)
             end
         end
     end)
+
+    require("session.autocmds")()
 end
 
 ---comment

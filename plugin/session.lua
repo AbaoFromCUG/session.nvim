@@ -1,33 +1,5 @@
-local session = require("session")
 local cmds = require("session.command")
 
-local group = vim.api.nvim_create_augroup("Session", {})
-vim.api.nvim_create_autocmd("StdinReadPre", {
-    group = group,
-    callback = function()
-        print("StdinReadPre")
-        session._state.started_with_stdin = true
-    end,
-})
-
-vim.api.nvim_create_autocmd("VimEnter", {
-    group = group,
-    nested = true,
-    callback = function()
-        if session._enabled() then
-            session.restore_session()
-        end
-    end,
-})
-
-vim.api.nvim_create_autocmd("VimLeavePre", {
-    group = group,
-    callback = function()
-        if session._enabled() then
-            session.save_session()
-        end
-    end,
-})
 
 vim.api.nvim_create_user_command("Session", function(opts)
     local cmd = cmds[opts.fargs[1]]
