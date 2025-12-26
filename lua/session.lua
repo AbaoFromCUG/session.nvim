@@ -47,7 +47,7 @@ end
 
 ---comment
 function M._enabled()
-    return M.config.enabled and not M._state.started_with_stdin and vim.fn.argc() == 0
+    return not M._state.started_with_stdin and vim.fn.argc() == 0
 end
 
 ---@alias session.Chance 'pre_save'|'extra_save'|'post_save'|'pre_restore'|'post_restore'
