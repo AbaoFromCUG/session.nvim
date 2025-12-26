@@ -5,13 +5,11 @@ local path = require("session.path")
 local M = {}
 
 ---@class session.Configuration
----@field enabled? boolean
 ---@field silent_restore? boolean # silent restore, may cause confusion
 ---@field hooks? table<session.Chance, table<string, function>>
 
 ---@type session.Configuration
 M.config = {
-    enabled = true,
     silent_restore = true,
     hooks = {
         pre_save = {},
@@ -35,9 +33,6 @@ M._state = {
 function M.setup(config)
     M.config = vim.tbl_deep_extend("force", M.config, config or {})
 
-    if not M.config.enabled then
-        return
-    end
 
     M.register_hook("pre_restore", "close_unrelated_buffers", function(old, new)
         for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
@@ -48,7 +43,6 @@ function M.setup(config)
         end
     end)
 
-    require("session.autocmds")()
 end
 
 ---comment
